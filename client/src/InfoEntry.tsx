@@ -9,6 +9,7 @@ const InfoEntry = () => {
   const [author, setAuthor] = useState('');
   const [imageUrl, setImageUrl] = useState('');
   const [text, setText] = useState('');
+  const [caption, setCaption] = useState('');
   const [error, setError] = useState('');
   const [success, setSuccess] = useState(false);
   const navigate = useNavigate();
@@ -89,6 +90,36 @@ const InfoEntry = () => {
         sx={{ mb: 2 }}
         placeholder="Write your journal entry here..."
       />
+
+      <Box sx={{ display: 'flex', alignItems: 'center', mb: 2, gap: 2 }}>
+        <TextField
+          fullWidth
+          label="Caption"
+          value={caption}
+          onChange={(e) => setCaption(e.target.value)}
+          placeholder="Enter a caption for image generation..."
+        />
+        <Box
+          component="img"
+          src="/openai.png"
+          alt="Generate with OpenAI"
+          sx={{
+            height: 56,
+            width: 'auto',
+            cursor: 'pointer',
+            borderRadius: '8px',
+            transition: 'transform 0.2s',
+            objectFit: 'contain',
+            '&:hover': {
+              transform: 'scale(1.1)',
+            },
+          }}
+          onClick={() => {
+            console.log('OpenAI button clicked with caption:', caption);
+            // Add your OpenAI API call here
+          }}
+        />
+      </Box>
 
       <Button
         variant="contained"
