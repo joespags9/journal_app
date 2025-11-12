@@ -4,8 +4,11 @@ import { useNavigate } from 'react-router-dom';
 import {
   Typography,
   CircularProgress,
-  Box
+  Box,
+  IconButton
 } from '@mui/material';
+import EditIcon from '@mui/icons-material/Edit';
+import DeleteIcon from '@mui/icons-material/Delete';
 
 interface Journal {
   _id: string;
@@ -37,6 +40,23 @@ const ArticleList = () => {
     fetchJournals();
   }, []);
 
+  const handleDelete = async (e: React.MouseEvent, id: string) => {
+    e.stopPropagation();
+    if (window.confirm('Are you sure you want to delete this entry?')) {
+      try {
+        await axios.delete(`http://localhost:3000/api/${id}`);
+        setJournals(journals.filter(journal => journal._id !== id));
+      } catch (error) {
+        console.error('Error deleting journal:', error);
+      }
+    }
+  };
+
+  const handleEdit = (e: React.MouseEvent, id: string) => {
+    e.stopPropagation();
+    navigate(`/edit/${id}`);
+  };
+
   if (loading) return <CircularProgress />;
 
   return (
@@ -56,7 +76,6 @@ const ArticleList = () => {
             key={journal._id}
             onClick={() => navigate(`/article/${journal._id}`)}
             sx={{
-              aspectRatio: '1',
               backgroundColor: 'white',
               borderRadius: '8px',
               cursor: 'pointer',
@@ -65,6 +84,7 @@ const ArticleList = () => {
               flexDirection: 'column',
               boxShadow: '0 2px 4px rgba(0,0,0,0.1)',
               transition: 'transform 0.2s, box-shadow 0.2s',
+              minHeight: '350px',
               '&:hover': {
                 transform: 'translateY(-4px)',
                 boxShadow: '0 4px 12px rgba(0,0,0,0.15)',
@@ -117,24 +137,54 @@ const ArticleList = () => {
                     whiteSpace: 'nowrap',
                   }}
                 >
-                  By {journal.author || 'Unknown'}
+                  By {journal.author || 'Unknown'} • {new Date(journal.date).toLocaleDateString()}
                 </Typography>
                 <Typography
                   variant="body2"
                   sx={{
-                    overflow: 'hidden',
-                    textOverflow: 'ellipsis',
-                    display: '-webkit-box',
-                    WebkitLineClamp: 2,
-                    WebkitBoxOrient: 'vertical',
+                    wordWrap: 'break-word',
+                    overflowWrap: 'break-word',
+                    lineHeight: 1.5,
                   }}
                 >
                   {journal.caption}
                 </Typography>
               </Box>
-              <Typography variant="caption" color="text.secondary" sx={{ mt: 1 }}>
-                {new Date(journal.date).toLocaleDateString()}
-              </Typography>
+              <Box
+                sx={{
+                  display: 'flex',
+                  gap: 1,
+                  justifyContent: 'flex-end',
+                  mt: 1,
+                }}
+              >
+                <IconButton
+                  size="small"
+                  onClick={(e) => handleEdit(e, journal._id)}
+                  sx={{
+                    color: 'primary.main',
+                    '&:hover': {
+                      backgroundColor: 'primary.light',
+                      color: 'white',
+                    },
+                  }}
+                >
+                  <EditIcon fontSize="small" />
+                </IconButton>
+                <IconButton
+                  size="small"
+                  onClick={(e) => handleDelete(e, journal._id)}
+                  sx={{
+                    color: 'error.main',
+                    '&:hover': {
+                      backgroundColor: 'error.light',
+                      color: 'white',
+                    },
+                  }}
+                >
+                  <DeleteIcon fontSize="small" />
+                </IconButton>
+              </Box>
             </Box>
           </Box>
         ))}

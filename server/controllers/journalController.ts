@@ -57,6 +57,27 @@ export const getJournalById = async (req: Request, res: Response) => {
   }
 };
 
+// Update a journal
+export const updateJournal = async (req: Request, res: Response) => {
+  try {
+    const updatedJournal = await journal.findByIdAndUpdate(
+      req.params.id,
+      req.body,
+      { new: true, runValidators: true }
+    );
+    if (!updatedJournal) return res.status(404).json({ message: 'Journal not found' });
+    res.status(200).json({
+      status: 'success',
+      data: {
+        journal: updatedJournal
+      }
+    });
+  } catch (error) {
+    console.error('Error updating journal:', error);
+    res.status(500).json({ message: 'Failed to update journal' });
+  }
+};
+
 // Delete a journal
 export const deleteJournal = async (req: Request, res: Response) => {
   try {

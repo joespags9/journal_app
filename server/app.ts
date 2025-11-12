@@ -4,6 +4,7 @@ import cors from 'cors';
 import journalRouter from './routes/journalRoutes.js';
 import { upload, uploadImage } from './controllers/uploadController.js';
 import uploadRouter from './routes/uploadRoutes.js'
+import openAIRoutes from './routes/aiRoutes.js';
 
 const app = express()
 
@@ -20,6 +21,7 @@ app.use(express.json())
 app.use('/uploads', express.static('uploads'));
 app.use('/api/upload', uploadRouter);
 
+app.use('/api/openai', openAIRoutes);
 
 app.use("/api",journalRouter)
 

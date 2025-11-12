@@ -11,6 +11,7 @@ router
 router
     .route('/:id')
     .get(journalController.getJournalById)
+    .put(journalController.updateJournal)
     .delete(journalController.deleteJournal)
 
 export default router;

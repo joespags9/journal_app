@@ -1,10 +1,10 @@
-import { useState } from 'react';
-import { Box, TextField, Button, Typography, Alert } from '@mui/material';
+import { useState, useEffect } from 'react';
+import { Box, TextField, Button, Typography, Alert, CircularProgress } from '@mui/material';
 import axios from 'axios';
-import { useNavigate } from 'react-router-dom';
+import { useNavigate, useParams } from 'react-router-dom';
 import { ImageDrop } from './ImageUpload';
 
-const InfoEntry = () => {
+const EditEntry = () => {
   const [title, setTitle] = useState('');
   const [author, setAuthor] = useState('');
   const [imageUrl, setImageUrl] = useState('');
@@ -12,8 +12,33 @@ const InfoEntry = () => {
   const [caption, setCaption] = useState('');
   const [error, setError] = useState('');
   const [success, setSuccess] = useState(false);
+  const [loading, setLoading] = useState(true);
   const [loadingAI, setLoadingAI] = useState(false);
   const navigate = useNavigate();
+  const { id } = useParams<{ id: string }>();
+
+  useEffect(() => {
+    const fetchJournal = async () => {
+      try {
+        const response = await axios.get(`http://localhost:3000/api/${id}`);
+        const journal = response.data;
+        setTitle(journal.title || '');
+        setAuthor(journal.author || '');
+        setImageUrl(journal.image || '');
+        setText(journal.text || '');
+        setCaption(journal.caption || '');
+      } catch (err) {
+        console.error('Error fetching journal:', err);
+        setError('Failed to load journal entry.');
+      } finally {
+        setLoading(false);
+      }
+    };
+
+    if (id) {
+      fetchJournal();
+    }
+  }, [id]);
 
   const handleSubmit = async () => {
     if (!title.trim()) {
@@ -22,7 +47,7 @@ const InfoEntry = () => {
     }
 
     try {
-      await axios.post('http://localhost:3000/api/', {
+      await axios.put(`http://localhost:3000/api/${id}`, {
         title,
         author,
         image: imageUrl,
@@ -32,15 +57,11 @@ const InfoEntry = () => {
 
       setSuccess(true);
       setError('');
-      setTitle('');
-      setAuthor('');
-      setImageUrl('');
-      setText('');
 
       setTimeout(() => navigate('/history'), 1500);
     } catch (err) {
-      console.error('Error creating journal entry:', err);
-      setError('Failed to create entry. Please try again.');
+      console.error('Error updating journal entry:', err);
+      setError('Failed to update entry. Please try again.');
     }
   };
 
@@ -62,10 +83,18 @@ const InfoEntry = () => {
     }
   };
 
+  if (loading) {
+    return (
+      <Box sx={{ display: 'flex', justifyContent: 'center', alignItems: 'center', height: '100%' }}>
+        <CircularProgress />
+      </Box>
+    );
+  }
+
   return (
     <Box sx={{ p: 3, maxWidth: 600, mx: 'auto' }}>
       <Typography variant="h4" sx={{ mb: 3, fontWeight: 600 }}>
-        Create New Journal Entry
+        Edit Journal Entry
       </Typography>
 
       {error && (
@@ -76,7 +105,7 @@ const InfoEntry = () => {
 
       {success && (
         <Alert severity="success" sx={{ mb: 2 }}>
-          Entry created successfully! Redirecting...
+          Entry updated successfully! Redirecting...
         </Alert>
       )}
 
@@ -139,22 +168,37 @@ const InfoEntry = () => {
             if (!loadingAI) generateAICaption();
           }}
         />
-
       </Box>
 
-      <Button
-        variant="contained"
-        onClick={handleSubmit}
-        sx={{
-          backgroundColor: 'rgba(42, 40, 41)',
-          color: 'white',
-          '&:hover': { backgroundColor: 'rgba(60, 58, 59)' },
-        }}
-      >
-        Create Entry
-      </Button>
+      <Box sx={{ display: 'flex', gap: 2 }}>
+        <Button
+          variant="outlined"
+          onClick={() => navigate('/history')}
+          sx={{
+            borderColor: 'rgba(42, 40, 41)',
+            color: 'rgba(42, 40, 41)',
+            '&:hover': {
+              borderColor: 'rgba(60, 58, 59)',
+              backgroundColor: 'rgba(60, 58, 59, 0.04)',
+            },
+          }}
+        >
+          Cancel
+        </Button>
+        <Button
+          variant="contained"
+          onClick={handleSubmit}
+          sx={{
+            backgroundColor: 'rgba(42, 40, 41)',
+            color: 'white',
+            '&:hover': { backgroundColor: 'rgba(60, 58, 59)' },
+          }}
+        >
+          Update Entry
+        </Button>
+      </Box>
     </Box>
   );
 };
 
-export default InfoEntry;
+export default EditEntry;

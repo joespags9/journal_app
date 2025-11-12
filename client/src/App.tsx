@@ -4,6 +4,7 @@ import Header from './Header';
 import Entries from './Home';
 import ArticleList from './ArticleList';
 import InfoEntry from './InfoEntry';
+import EditEntry from './EditEntry';
 import ReadArticle from './ReadArticle';
 
 const App = () => {
@@ -40,6 +41,7 @@ const App = () => {
               <Route path="/" element={<Entries />} />
               <Route path="/history" element={<ArticleList />} />
               <Route path="/entry" element={<InfoEntry />} />
+              <Route path="/edit/:id" element={<EditEntry />} />
               <Route path="/article/:id" element={<ReadArticle />} />
               <Route path="*" element={<Navigate to="/" replace />} />
             </Routes>

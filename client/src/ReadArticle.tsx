@@ -24,7 +24,7 @@ const ReadArticle = () => {
     const fetchArticle = async () => {
       try {
         const response = await axios.get(`http://localhost:3000/api/${id}`);
-        setArticle(response.data.data.journal);
+        setArticle(response.data);
       } catch (error) {
         console.error('Error fetching article:', error);
       } finally {
